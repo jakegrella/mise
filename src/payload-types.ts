@@ -68,15 +68,31 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    groups: Group;
+    concepts: Concept;
+    locations: Location;
+    'knowledge-documents': KnowledgeDocument;
     media: Media;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    groups: {
+      users: 'users';
+      concepts: 'concepts';
+    };
+    concepts: {
+      locations: 'locations';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    groups: GroupsSelect<false> | GroupsSelect<true>;
+    concepts: ConceptsSelect<false> | ConceptsSelect<true>;
+    locations: LocationsSelect<false> | LocationsSelect<true>;
+    'knowledge-documents': KnowledgeDocumentsSelect<false> | KnowledgeDocumentsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -123,6 +139,8 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  name: string;
+  group: number | Group;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -142,6 +160,64 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "groups".
+ */
+export interface Group {
+  id: number;
+  name: string;
+  users?: {
+    docs?: (number | User)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  concepts?: {
+    docs?: (number | Concept)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "concepts".
+ */
+export interface Concept {
+  id: number;
+  name: string;
+  group: number | Group;
+  locations?: {
+    docs?: (number | Location)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: number;
+  name: string;
+  address?: string | null;
+  concept: number | Concept;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "knowledge-documents".
+ */
+export interface KnowledgeDocument {
+  id: number;
+  group: number | Group;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -189,6 +265,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'groups';
+        value: number | Group;
+      } | null)
+    | ({
+        relationTo: 'concepts';
+        value: number | Concept;
+      } | null)
+    | ({
+        relationTo: 'locations';
+        value: number | Location;
+      } | null)
+    | ({
+        relationTo: 'knowledge-documents';
+        value: number | KnowledgeDocument;
       } | null)
     | ({
         relationTo: 'media';
@@ -241,6 +333,8 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  group?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -258,6 +352,48 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "groups_select".
+ */
+export interface GroupsSelect<T extends boolean = true> {
+  name?: T;
+  users?: T;
+  concepts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "concepts_select".
+ */
+export interface ConceptsSelect<T extends boolean = true> {
+  name?: T;
+  group?: T;
+  locations?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations_select".
+ */
+export interface LocationsSelect<T extends boolean = true> {
+  name?: T;
+  address?: T;
+  concept?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "knowledge-documents_select".
+ */
+export interface KnowledgeDocumentsSelect<T extends boolean = true> {
+  group?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
